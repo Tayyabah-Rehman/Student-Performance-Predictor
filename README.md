@@ -1,8 +1,24 @@
-# EduPredict — Student Academic Performance Predictor
+<div align="center">
 
-An AI/ML web application that predicts a student's academic performance grade
-(Poor / Average / Good / Excellent) based on study habits, attendance, and
-academic history.
+# 📚 EduPredict — Student Academic Performance Predictor
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.3.2-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3.0-orange?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Pandas](https://img.shields.io/badge/Pandas-2.1.0-blue?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker&logoColor=white)](https://www.docker.com/)
+
+</div>
+
+An AI/ML web application that predicts a student's academic performance grade (Poor / Average / Good / Excellent) based on study habits, attendance, and academic history.
+
+---
+
+## 📸 Interface Preview
+
+![Student Performance Interface](https://raw.githubusercontent.com/Tayyabah-Rehman/Student-Performance-Predictor/main/data/Student%20Performance%20Interface.PNG)
+
+*Screenshot of the Student Performance Predictor showing input features and grade prediction output.*
 
 ---
 
