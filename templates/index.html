@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduPredict — Student Performance AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1d23;min-height:100vh}
+
+header{background:#1a1d23;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:99}
+.logo{color:#fff;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+.logo-dot{width:9px;height:9px;border-radius:50%;background:#2563eb}
+
+.hero{background:linear-gradient(135deg,#1a1d23,#1e3a5f);color:#fff;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;margin-bottom:.75rem;letter-spacing:-.03em}
+.hero h1 span{color:#60a5fa}
+.hero p{color:rgba(255,255,255,.6);max-width:500px;margin:0 auto 1.5rem;font-size:.9rem}
+.hero-stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
+.hs-val{font-size:1.7rem;font-weight:700;color:#60a5fa}
+.hs-lbl{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:2px}
+
+.container{max-width:1060px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+.card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card-title{font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6b7280;margin-bottom:1.1rem}
+
+/* form fields */
+.field{margin-bottom:1rem}
+.field-label{font-size:.82rem;font-weight:600;color:#374151;margin-bottom:.35rem;display:flex;justify-content:space-between;align-items:center}
+.field-label .val{background:#eff6ff;color:#2563eb;font-size:.78rem;font-weight:700;padding:.15rem .5rem;border-radius:6px;min-width:46px;text-align:center}
+.field-hint{font-size:.7rem;color:#9ca3af;margin-top:.2rem}
+input[type=range]{width:100%;accent-color:#2563eb;cursor:pointer}
+
+/* star rating */
+.stars{display:flex;gap:5px;margin-top:2px}
+.star{font-size:1.4rem;cursor:pointer;color:#d1d5db;transition:color .12s,transform .12s;user-select:none;line-height:1}
+.star.on{color:#f59e0b}
+.star:hover{transform:scale(1.15)}
+
+/* assignment badges */
+.badge-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.abtn{width:30px;height:30px;border-radius:7px;border:2px solid #e4e7ec;background:#f9fafb;font-size:.78rem;font-weight:600;color:#6b7280;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif}
+.abtn:hover{border-color:#93c5fd}
+.abtn.active{border-color:#2563eb;background:#2563eb;color:#fff}
+
+/* predict button */
+.btn-predict{width:100%;padding:.9rem;background:#2563eb;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;margin-top:.5rem;transition:background .18s,transform .12s}
+.btn-predict:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn-predict:active{transform:translateY(0)}
+.btn-predict:disabled{opacity:.65;cursor:not-allowed;transform:none}
+
+/* result area */
+.placeholder-box{text-align:center;padding:3rem 1.5rem;color:#9ca3af}
+.placeholder-box .icon{font-size:3rem;margin-bottom:.75rem}
+.placeholder-box .pt{font-size:.95rem;font-weight:600;color:#4b5563;margin-bottom:.4rem}
+.placeholder-box .ps{font-size:.82rem}
+
+.grade-badge{display:inline-flex;align-items:center;gap:.5rem;font-size:1.8rem;font-weight:700;padding:.4rem 1.2rem;border-radius:40px;margin:.4rem 0 1rem}
+.g-poor{background:#fef2f2;color:#dc2626}
+.g-average{background:#fffbeb;color:#d97706}
+.g-good{background:#eff6ff;color:#2563eb}
+.g-excellent{background:#f0fdf4;color:#16a34a}
+
+/* prob bars */
+.pbar-wrap{display:flex;flex-direction:column;gap:8px;margin:8px 0 1rem}
+.pbar-row{display:flex;flex-direction:column;gap:3px}
+.pbar-meta{display:flex;justify-content:space-between;font-size:.76rem;color:#4b5563}
+.pbar-track{height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.pf-poor{background:#dc2626}.pf-average{background:#d97706}.pf-good{background:#2563eb}.pf-excellent{background:#16a34a}
+
+/* insights */
+.insights{list-style:none;display:flex;flex-direction:column;gap:6px}
+.insight{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:#4b5563;line-height:1.4}
+.idot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+
+/* error box */
+.error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:.75rem 1rem;font-size:.82rem;color:#dc2626;margin-top:.75rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><div class="logo-dot"></div> EduPredict</div>
+  <div style="color:rgba(255,255,255,.4);font-size:.78rem">Student Performance Predictor</div>
+</header>
+
+<div class="hero">
+  <h1>Predict student <span>performance</span> with AI</h1>
+  <p>Enter study habits, attendance, and academic history. The ML model instantly returns a performance grade with confidence scores.</p>
+  <div class="hero-stats">
+    <div><div class="hs-val" id="h-acc">—</div><div class="hs-lbl">Test Accuracy</div></div>
+    <div><div class="hs-val" id="h-f1">—</div><div class="hs-lbl">F1 Score</div></div>
+    <div><div class="hs-val">800</div><div class="hs-lbl">Training Records</div></div>
+    <div><div class="hs-val" id="h-model">—</div><div class="hs-lbl">Best Model</div></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="two-col">
+
+    <!-- LEFT: Input Form -->
+    <div class="card">
+      <div class="card-title">Student Input Features</div>
+
+      <!-- Study hours -->
+      <div class="field">
+        <div class="field-label">
+          Study Hours Per Day
+          <span class="val" id="v-study">4 h</span>
+        </div>
+        <input type="range" id="study" min="0.5" max="10" step="0.5" value="4"
+               oninput="document.getElementById('v-study').textContent=this.value+' h'">
+        <div class="field-hint">Daily hours spent studying outside class</div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="field">
+        <div class="field-label">
+          Attendance Percentage
+          <span class="val" id="v-att">80%</span>
+        </div>
+        <input type="range" id="att" min="40" max="100" step="1" value="80"
+               oninput="document.getElementById('v-att').textContent=this.value+'%'">
+        <div class="field-hint">Classes attended out of total scheduled</div>
+      </div>
+
+      <!-- Assignments -->
+      <div class="field">
+        <div class="field-label">
+          Assignments Completed
+          <span class="val" id="v-asgn">5 / 10</span>
+        </div>
+        <div class="badge-grid" id="asgn-grid"></div>
+        <div class="field-hint">Tap a number to set how many assignments were done</div>
+      </div>
+
+      <!-- Previous marks -->
+      <div class="field">
+        <div class="field-label">
+          Previous Semester Marks
+          <span class="val" id="v-marks">65</span>
+        </div>
+        <input type="range" id="marks" min="30" max="100" step="1" value="65"
+               oninput="document.getElementById('v-marks').textContent=this.value">
+        <div class="field-hint">Score out of 100 from last semester</div>
+      </div>
+
+      <!-- Class participation -->
+      <div class="field">
+        <div class="field-label">Class Participation</div>
+        <div class="stars" id="stars"></div>
+        <div class="field-hint">1 = rarely participates &nbsp;·&nbsp; 5 = very active in class</div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="field">
+        <div class="field-label">
+          Sleep Hours Per Night
+          <span class="val" id="v-sleep">7 h</span>
+        </div>
+        <input type="range" id="sleep" min="4" max="10" step="0.5" value="7"
+               oninput="document.getElementById('v-sleep').textContent=this.value+' h'">
+      </div>
+
+      <!-- Extracurricular -->
+      <div class="field">
+        <div class="field-label">
+          Extracurricular Activities
+          <span class="val" id="v-ec">1</span>
+        </div>
+        <input type="range" id="ec" min="0" max="3" step="1" value="1"
+               oninput="document.getElementById('v-ec').textContent=this.value">
+        <div class="field-hint">Sports, clubs, volunteering, etc.</div>
+      </div>
+
+      <button class="btn-predict" id="predict-btn" onclick="runPredict()">
+        ⚡ Predict Performance
+      </button>
+
+      <div class="error-box" id="error-box" style="display:none"></div>
+    </div>
+
+    <!-- RIGHT: Result -->
+    <div class="card" id="result-card">
+      <div class="placeholder-box" id="placeholder">
+        <div class="icon">🎓</div>
+        <div class="pt">Results appear here</div>
+        <div class="ps">Fill in the student details on the left,<br>then click <strong>Predict Performance</strong>.</div>
+      </div>
+
+      <div id="result-body" style="display:none">
+        <div class="card-title">Prediction Result</div>
+        <div id="grade-out"></div>
+
+        <div class="card-title" style="margin-top:1rem">Confidence Breakdown</div>
+        <div class="pbar-wrap" id="prob-bars"></div>
+
+        <div class="card-title" style="margin-top:1rem">Personalised Insights</div>
+        <ul class="insights" id="insights"></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────
+var participation = 3;
+var assignments   = 5;
+
+// ─── Build star rating ───────────────────────────────
+function buildStars() {
+  var container = document.getElementById('stars');
+  container.innerHTML = '';
+  for (var i = 1; i <= 5; i++) {
+    var s = document.createElement('span');
+    s.className = 'star' + (i <= participation ? ' on' : '');
+    s.textContent = '★';
+    s.setAttribute('data-val', i);
+    s.onclick = function() {
+      participation = parseInt(this.getAttribute('data-val'));
+      buildStars();
+    };
+    container.appendChild(s);
+  }
+}
+
+// ─── Build assignment badges ─────────────────────────
+function buildBadges() {
+  var grid = document.getElementById('asgn-grid');
+  grid.innerHTML = '';
+  for (var i = 0; i <= 10; i++) {
+    var b = document.createElement('button');
+    b.className = 'abtn' + (i === assignments ? ' active' : '');
+    b.textContent = i;
+    b.setAttribute('data-val', i);
+    b.type = 'button';
+    b.onclick = function() {
+      assignments = parseInt(this.getAttribute('data-val'));
+      document.getElementById('v-asgn').textContent = assignments + ' / 10';
+      buildBadges();
+    };
+    grid.appendChild(b);
+  }
+}
+
+// ─── Run prediction ──────────────────────────────────
+function runPredict() {
+  var btn = document.getElementById('predict-btn');
+  var errBox = document.getElementById('error-box');
+  errBox.style.display = 'none';
+
+  var payload = {
+    study_hours_per_day:       parseFloat(document.getElementById('study').value),
+    attendance_percentage:     parseFloat(document.getElementById('att').value),
+    assignments_completed:     assignments,
+    previous_semester_marks:   parseFloat(document.getElementById('marks').value),
+    class_participation:       participation,
+    sleep_hours:               parseFloat(document.getElementById('sleep').value),
+    extracurricular_activities: parseFloat(document.getElementById('ec').value)
+  };
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Predicting...';
+
+  fetch('/api/predict', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    return res.json();
+  })
+  .then(function(data) {
+    if (data.error) throw new Error(data.error);
+    showResult(data, payload);
+  })
+  .catch(function(err) {
+    errBox.style.display = 'block';
+    errBox.textContent = '⚠️ Error: ' + err.message + '. Make sure Flask is running on port 5000.';
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = '⚡ Predict Performance';
+  });
+}
+
+// ─── Render result ───────────────────────────────────
+var gradeConfig = {
+  Poor:      { cls: 'g-poor',      pf: 'pf-poor',      emoji: '😟', hex: '#dc2626' },
+  Average:   { cls: 'g-average',   pf: 'pf-average',   emoji: '📘', hex: '#d97706' },
+  Good:      { cls: 'g-good',      pf: 'pf-good',      emoji: '✅', hex: '#2563eb' },
+  Excellent: { cls: 'g-excellent', pf: 'pf-excellent',  emoji: '🌟', hex: '#16a34a' }
+};
+
+function showResult(data, inp) {
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('result-body').style.display = 'block';
+
+  var gc = gradeConfig[data.prediction] || gradeConfig['Average'];
+
+  // Grade badge
+  document.getElementById('grade-out').innerHTML =
+    '<div class="grade-badge ' + gc.cls + '">' + gc.emoji + ' ' + data.prediction + '</div>';
+
+  // Probability bars
+  var bars = document.getElementById('prob-bars');
+  bars.innerHTML = '';
+  var order = ['Excellent', 'Good', 'Average', 'Poor'];
+  order.forEach(function(lbl) {
+    var pct = data.probabilities[lbl] !== undefined ? data.probabilities[lbl] : 0;
+    var pf  = gradeConfig[lbl] ? gradeConfig[lbl].pf : 'pf-average';
+    bars.innerHTML +=
+      '<div class="pbar-row">' +
+        '<div class="pbar-meta"><span>' + lbl + '</span><span>' + pct.toFixed(1) + '%</span></div>' +
+        '<div class="pbar-track"><div class="pbar-fill ' + pf + '" style="width:' + pct + '%"></div></div>' +
+      '</div>';
+  });
+
+  // Insights
+  var insights = makeInsights(data.prediction, inp);
+  var list = document.getElementById('insights');
+  list.innerHTML = '';
+  insights.forEach(function(item) {
+    list.innerHTML +=
+      '<li class="insight">' +
+        '<div class="idot" style="background:' + item.color + '"></div>' +
+        item.text +
+      '</li>';
+  });
+}
+
+function makeInsights(grade, inp) {
+  var items = [];
+  var G = '#16a34a', A = '#d97706', R = '#dc2626';
+
+  if (inp.study_hours_per_day >= 6)
+    items.push({ text: 'Strong study routine — keep it consistent.', color: G });
+  else if (inp.study_hours_per_day < 3)
+    items.push({ text: 'Less than 3 h/day is a key risk. Aim for at least 4–5 hours daily.', color: R });
+  else
+    items.push({ text: 'Study hours are moderate. A small increase can push the grade higher.', color: A });
+
+  if (inp.attendance_percentage >= 85)
+    items.push({ text: 'Excellent attendance — strongly correlated with higher grades.', color: G });
+  else if (inp.attendance_percentage < 65)
+    items.push({ text: 'Attendance below 65% is one of the strongest predictors of poor performance.', color: R });
+  else
+    items.push({ text: 'Attendance is acceptable but improving to 85%+ would help significantly.', color: A });
+
+  if (inp.assignments_completed >= 8)
+    items.push({ text: 'Nearly all assignments done — shows consistent engagement.', color: G });
+  else if (inp.assignments_completed <= 4)
+    items.push({ text: 'Less than half of assignments completed. Doing more will directly lift the grade.', color: R });
+
+  if (inp.previous_semester_marks >= 70)
+    items.push({ text: 'Solid previous marks — strong academic foundation.', color: G });
+  else if (inp.previous_semester_marks < 50)
+    items.push({ text: 'Weak prior record — additional support or tutoring is recommended.', color: R });
+
+  if (inp.sleep_hours < 6)
+    items.push({ text: 'Less than 6 h of sleep impairs memory consolidation. Aim for 7–8 h.', color: A });
+
+  if (grade === 'Excellent')
+    items.push({ text: 'This student is on track for the top grade. Maintaining consistency is key.', color: G });
+  else if (grade === 'Poor')
+    items.push({ text: 'Multiple factors are contributing to poor performance. A structured improvement plan is recommended.', color: R });
+
+  return items.slice(0, 5);
+}
+
+// ─── Load hero stats from API ─────────────────────────
+fetch('/api/meta')
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    document.getElementById('h-acc').textContent   = (d.test_accuracy * 100).toFixed(1) + '%';
+    document.getElementById('h-f1').textContent    = (d.f1_score * 100).toFixed(1) + '%';
+    document.getElementById('h-model').textContent = d.best_model.replace('Regression','Reg').replace('Forest','RF');
+  })
+  .catch(function() {});
+
+// ─── Init ─────────────────────────────────────────────
+buildStars();
+buildBadges();
+</script>
+</body>
+</html>
