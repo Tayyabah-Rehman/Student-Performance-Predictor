@@ -3,8 +3,30 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
 # C extensions
 *.so
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Distribution / packaging
 .Python
