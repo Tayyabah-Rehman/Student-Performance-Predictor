@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 EduPredict — Student Academic Performance Predictor
+# 📚 Student Academic Performance Predictor
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3.2-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
